@@ -1,0 +1,73 @@
+package be.abis.exercise.repository;
+
+import be.abis.exercise.model.Course;
+
+import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+public class MemoryCourseRepository implements CourseRepository{
+
+    private List<Course> courses = new ArrayList<>();
+
+    public MemoryCourseRepository(){
+        courses.add(new Course("DB2, an overview",5,550.0, LocalDate.of(1986,4,30)));
+        courses.add(new Course("Workshop SQL",2,475.0, LocalDate.of(1990,1,9)));
+        courses.add(new Course("Java Programming",5,500.0, LocalDate.of(1997,5,27)));
+        courses.add(new Course("Maven",1,450.0, LocalDate.of(2007,6,11)));
+        courses.add(new Course("Programming with Spring",3,525.0, LocalDate.of(2008,3,21)));
+
+    }
+
+    @Override
+    public List<Course> findAllCourses() {
+        return courses;
+    }
+
+    @Override
+    public void addCourse(Course c) {
+        courses.add(c);
+    }
+
+    @Override
+    public String formatCourse(Course c) {
+        StringBuilder sb = new StringBuilder("");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("d/M/yyyy");
+        sb.append(c.getTitle()).append(";")
+                .append(c.getDays()).append(";")
+                .append(c.getDailyPrice()).append(";")
+                .append(c.getReleaseDate().format(dtf));
+        return sb.toString();
+    }
+
+    @Override
+    public void printAllCourses(String language) {
+        Locale l = new Locale(language);
+        String baseName = "be.abis.exercise.resources.applicationResources";
+        ResourceBundle bundle = ResourceBundle.getBundle(baseName, l);
+        String overview = bundle.getString("overview");
+        String title = bundle.getString("title");
+        String totalprice = bundle.getString("totalprice");
+        String date = bundle.getString("date");
+        System.out.println("---------------------------------------------------------------------");
+        System.out.printf("%40s\n", overview);
+        System.out.println("---------------------------------------------------------------------");
+        System.out.printf("%-30s %-25s %-25s \n", title, totalprice,date);
+        System.out.println("---------------------------------------------------------------------");
+       courses.sort((c1,c2)->(int)((c1.calculatePriceWithVAT()-c2.calculatePriceWithVAT())*100));
+        for (Course c : courses){
+            double totalPrice= c.calculatePriceWithVAT();
+            NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("nl","BE"));
+            //nf.setMaximumFractionDigits(2);
+            nf.setGroupingUsed(false);
+            String formattedNumber = nf.format(totalPrice).replaceAll("\u00A0","");
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MMM dd, yyyy",l);
+            System.out.printf("%-30s %-25s %-25s \n", c.getTitle(), formattedNumber,c.getReleaseDate().format(dtf));
+
+        }
+    }
+}
