@@ -10,5 +10,5 @@ public interface CourseRepository {
     void addCourse(Course c);
     String formatCourse(Course c);
 
-
+    void printAllCoursesCSV();
 }

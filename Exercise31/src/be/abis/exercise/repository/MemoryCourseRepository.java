@@ -43,4 +43,9 @@ public class MemoryCourseRepository implements CourseRepository{
           .append(c.getReleaseDate().format(dtf));
         return sb.toString();
     }
+
+    @Override
+    public void printAllCoursesCSV() {
+        courses.forEach(c->System.out.println(this.formatCourse(c)));
+    }
 }
